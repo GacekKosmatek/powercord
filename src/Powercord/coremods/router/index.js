@@ -63,15 +63,17 @@ async function injectSidebar () {
 
 async function forceRouterUpdate () {
   // Views
-  const { app } = getAllModules([ 'app' ]).find(m => Object.keys(m).length === 1);
-  const viewsInstance = getOwnerInstance(await waitFor(`.${app}`));
-  findInTree(viewsInstance._reactInternals || viewsInstance._reactInternalFiber, n => n && n.historyUnlisten, { walkable: [ 'child', 'stateNode' ] }).forceUpdate();
-
+  const app = getAllModules([ 'app' ]).find(m => Object.keys(m).length === 1)?.app;
+  if (app) {
+    const viewsInstance = getOwnerInstance(await waitFor(`.${app}`));
+    findInTree(viewsInstance._reactInternals || viewsInstance._reactInternalFiber, n => n && n.historyUnlisten, { walkable: [ 'child', 'stateNode' ] }).forceUpdate();
+  }
   // Routes
-  const { container } = await getModule([ 'container', 'downloadProgressCircle' ]);
-  const routesInstance = getOwnerInstance(await waitFor(`.${container}`));
-  routesInstance.forceUpdate();
-}
+  const container = await getModule([ 'container', 'downloadProgressCircle' ])?.container;
+  if (container) {
+    const routesInstance = getOwnerInstance(await waitFor(`.${container}`));
+    routesInstance.forceUpdate();
+  }
 
 module.exports = async function () {
   await injectRouter();
